@@ -9,21 +9,21 @@ public class Main {
         String filePath = "input2.txt";
 
         timer.start();
-        System.out.println("File length: " + cipher(filePath));
+        System.out.println("File length: " + decipher(filePath, 2));
         System.out.println("Ciphering sequentially done in : " + timer.finish() + " ms.");
 
         timer.start();
-        System.out.println("File length: " + cipherConcurrently(filePath, 0));
+        System.out.println("File length: " + decipherConcurrently(filePath, 2, 2));
         System.out.println("Ciphering concurrently done in : " + timer.finish() + " ms.");
     }
 
-    public static int cipher(String path) {
+    public static int decipher(String path, int key) {
         StringBuilder builder = new StringBuilder();
         try (FileInputStream fis = new FileInputStream(new File(path))) {
             char current;
             while (fis.available() > 0) {
                 current = (char) fis.read();
-                builder.append(cipherCharacter(current));
+                builder.append(decipherCharacter(current, key));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -31,7 +31,7 @@ public class Main {
         return builder.length();
     }
 
-    public static int cipherConcurrently(String file, int threadCount) {
+    public static int decipherConcurrently(String file, int key, int threadCount) {
         if(threadCount < 1){
             throw new IllegalArgumentException("At least one thread has to be used");
         }
@@ -56,7 +56,7 @@ public class Main {
                     end = marker * (multiplier + 1);
                 }
 
-                threads[i] = new Thread(() -> partialCipher(start, end, results[multiplier], raf));
+                threads[i] = new Thread(() -> partialDecipher(key, start, end, results[multiplier], raf));
 
                 threads[i].start();
             }
@@ -82,28 +82,28 @@ public class Main {
         return 0;
     }
 
-    public static StringBuilder partialCipher(int start, int end, StringBuilder result, RandomAccessFile raf) {
+    public static StringBuilder partialDecipher(int key, int start, int end, StringBuilder result, RandomAccessFile raf) {
         for (int i = start; i < end; i++) {
             try {
-                result.append(cipherCharacter((char) raf.readByte()));
+                result.append(decipherCharacter( (char) raf.readByte(), key));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println(result);
+//        System.out.println(result);
         return result;
     }
 
-    public static char cipherCharacter(char current) {
+    public static char decipherCharacter(char current, int key) {
         if (current < 91 && current > 64) {
-            current++;
-            if (current > 90) {
-                current -= 26;
+            current -= key;
+            if (current < 65) {
+                current += 26;
             }
         } else if (current < 123 && current > 96) {
-            current++;
-            if (current > 122) {
-                current -= 26;
+            current-= key;
+            if (current < 97) {
+                current += 26;
             }
         }
         return current;
