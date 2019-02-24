@@ -6,29 +6,19 @@ public class Main {
 
     public static void main(String[] args) {
         Timer timer = new Timer();
-        String filePath = "input2.txt";
+        String filePath = "input1.txt";
 
         timer.start();
-        System.out.println("File length: " + decipher(filePath, 2));
-        System.out.println("Ciphering sequentially done in : " + timer.finish() + " ms.");
+        System.out.println("File length: " + decipherConcurrently(filePath, 2, 1));
+        System.out.println("Deciphering concurrently done in : " + timer.finish() + " ms.");
 
         timer.start();
         System.out.println("File length: " + decipherConcurrently(filePath, 2, 2));
-        System.out.println("Ciphering concurrently done in : " + timer.finish() + " ms.");
-    }
+        System.out.println("Deciphering concurrently done in : " + timer.finish() + " ms.");
 
-    public static int decipher(String path, int key) {
-        StringBuilder builder = new StringBuilder();
-        try (FileInputStream fis = new FileInputStream(new File(path))) {
-            char current;
-            while (fis.available() > 0) {
-                current = (char) fis.read();
-                builder.append(decipherCharacter(current, key));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return builder.length();
+        timer.start();
+        System.out.println("File length: " + decipherConcurrently(filePath, 2, 4));
+        System.out.println("Deciphering concurrently done in : " + timer.finish() + " ms.");
     }
 
     public static int decipherConcurrently(String file, int key, int threadCount) {
@@ -56,7 +46,7 @@ public class Main {
                     end = marker * (multiplier + 1);
                 }
 
-                threads[i] = new Thread(() -> partialDecipher(key, start, end, results[multiplier], raf));
+                threads[i] = new Thread(() -> partialDecipher(key, start, end, results[multiplier], file));
 
                 threads[i].start();
             }
@@ -82,7 +72,15 @@ public class Main {
         return 0;
     }
 
-    public static StringBuilder partialDecipher(int key, int start, int end, StringBuilder result, RandomAccessFile raf) {
+    public static StringBuilder partialDecipher(int key, int start, int end, StringBuilder result, String file) {
+        RandomAccessFile raf = null;
+        try {
+            raf = new RandomAccessFile(file, "r");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        double s = System.currentTimeMillis();
         for (int i = start; i < end; i++) {
             try {
                 result.append(decipherCharacter( (char) raf.readByte(), key));
@@ -90,7 +88,6 @@ public class Main {
                 e.printStackTrace();
             }
         }
-//        System.out.println(result);
         return result;
     }
 

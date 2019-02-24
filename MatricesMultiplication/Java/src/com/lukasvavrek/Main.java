@@ -4,7 +4,7 @@ public class Main {
 
     public static void main(String[] args) {
         int m = 2000;
-        int n = 1000;
+        int n = 2000;
 
         Matrix m1 = new Matrix(m, n, true);
         Matrix m2 = new Matrix(n, m, true);

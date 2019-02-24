@@ -3,7 +3,7 @@ package com.lukasvavrek;
 public class Main {
 
     public static void main(String[] args) {
-        int length = 10_000_000;
+        int length = 5_000_000;
 
         for (int i = 1; i <= 10; i++) {
             float[] unsorted = new SortingPreparator().prepare(length);
