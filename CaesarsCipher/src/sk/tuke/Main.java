@@ -6,7 +6,7 @@ public class Main {
 
     public static void main(String[] args) {
         Timer timer = new Timer();
-        String filePath = "input1.txt";
+        String filePath = "input3.txt";
 
         timer.start();
         System.out.println("File length: " + decipherConcurrently(filePath, 2, 1));
@@ -20,6 +20,7 @@ public class Main {
         System.out.println("File length: " + decipherConcurrently(filePath, 2, 4));
         System.out.println("Deciphering concurrently done in : " + timer.finish() + " ms.");
     }
+
 
     public static int decipherConcurrently(String file, int key, int threadCount) {
         if(threadCount < 1){
@@ -36,6 +37,8 @@ public class Main {
 
             Thread[] threads = new Thread[threadCount];
 
+
+            //Create and stard threads
             for (int i = 0; i < threadCount; i++) {
                 final int multiplier = i;
                 final int start = marker * multiplier;
@@ -51,6 +54,7 @@ public class Main {
                 threads[i].start();
             }
 
+            //Synchronize threads
             for (Thread thread : threads) {
                 try {
                     thread.join();
@@ -59,6 +63,7 @@ public class Main {
                 }
             }
 
+            //Join partial results
             StringBuilder result = new StringBuilder();
             for (StringBuilder partial : results) {
                 result.append(partial);
@@ -72,6 +77,7 @@ public class Main {
         return 0;
     }
 
+    //Decipher a part of file.
     public static StringBuilder partialDecipher(int key, int start, int end, StringBuilder result, String file) {
         RandomAccessFile raf = null;
         try {
@@ -91,6 +97,8 @@ public class Main {
         return result;
     }
 
+
+    //Decipher a single character
     public static char decipherCharacter(char current, int key) {
         if (current < 91 && current > 64) {
             current -= key;
